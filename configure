@@ -578,10 +578,10 @@ MFLAGS=
 MAKEFLAGS=
 
 # Identity of this package.
-PACKAGE_NAME='python'
-PACKAGE_TARNAME='python'
+PACKAGE_NAME='phyton'
+PACKAGE_TARNAME='phyton'
 PACKAGE_VERSION='3.11'
-PACKAGE_STRING='python 3.11'
+PACKAGE_STRING='phyton 3.11'
 PACKAGE_BUGREPORT='https://bugs.python.org/'
 PACKAGE_URL=''
 

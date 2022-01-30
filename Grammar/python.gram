@@ -126,7 +126,7 @@ simple_stmt[stmt_ty] (memo):
     | &'nonlocal' nonlocal_stmt
 
 compound_stmt[stmt_ty]:
-    | &('def' | '@' | ASYNC) function_def
+    | &('fun' | 'def' | '@' | ASYNC) function_def
     | &'if' if_stmt
     | &('class' | '@') class_def
     | &('with' | ASYNC) with_stmt
@@ -264,11 +264,11 @@ function_def[stmt_ty]:
 
 function_def_raw[stmt_ty]:
     | invalid_def_raw
-    | 'def' n=NAME &&'(' params=[params] ')' a=['->' z=expression { z }] &&':' tc=[func_type_comment] b=block {
+    | ('fun' |'def') n=NAME &&'(' params=[params] ')' a=['->' z=expression { z }] &&':' tc=[func_type_comment] b=block {
         _PyAST_FunctionDef(n->v.Name.id,
                         (params) ? params : CHECK(arguments_ty, _PyPegen_empty_arguments(p)),
                         b, NULL, a, NEW_TYPE_COMMENT(p, tc), EXTRA) }
-    | ASYNC 'def' n=NAME &&'(' params=[params] ')' a=['->' z=expression { z }] &&':' tc=[func_type_comment] b=block {
+    | ASYNC ('fun' |'def') n=NAME &&'(' params=[params] ')' a=['->' z=expression { z }] &&':' tc=[func_type_comment] b=block {
         CHECK_VERSION(
             stmt_ty,
             5,
@@ -351,9 +351,9 @@ if_stmt[stmt_ty]:
     | 'if' a=named_expression ':' b=block c=[else_block] { _PyAST_If(a, b, c, EXTRA) }
 elif_stmt[stmt_ty]:
     | invalid_elif_stmt
-    | 'elif' a=named_expression ':' b=block c=elif_stmt {
+    | ('elseif' | 'elif') a=named_expression ':' b=block c=elif_stmt {
         _PyAST_If(a, b, CHECK(asdl_stmt_seq*, _PyPegen_singleton_seq(p, c)), EXTRA) }
-    | 'elif' a=named_expression ':' b=block c=[else_block] { _PyAST_If(a, b, c, EXTRA) }
+    | ('elseif' | 'elif') a=named_expression ':' b=block c=[else_block] { _PyAST_If(a, b, c, EXTRA) }
 else_block[asdl_stmt_seq*]:
     | invalid_else_stmt
     | 'else' &&':' b=block { b }
@@ -709,8 +709,8 @@ gte_bitwise_or[CmpopExprPair*]: '>=' a=bitwise_or { _PyPegen_cmpop_expr_pair(p, 
 gt_bitwise_or[CmpopExprPair*]: '>' a=bitwise_or { _PyPegen_cmpop_expr_pair(p, Gt, a) }
 notin_bitwise_or[CmpopExprPair*]: 'not' 'in' a=bitwise_or { _PyPegen_cmpop_expr_pair(p, NotIn, a) }
 in_bitwise_or[CmpopExprPair*]: 'in' a=bitwise_or { _PyPegen_cmpop_expr_pair(p, In, a) }
-isnot_bitwise_or[CmpopExprPair*]: 'is' 'not' a=bitwise_or { _PyPegen_cmpop_expr_pair(p, IsNot, a) }
-is_bitwise_or[CmpopExprPair*]: 'is' a=bitwise_or { _PyPegen_cmpop_expr_pair(p, Is, a) }
+isnot_bitwise_or[CmpopExprPair*]: ('was' | 'is') 'not' a=bitwise_or { _PyPegen_cmpop_expr_pair(p, IsNot, a) }
+is_bitwise_or[CmpopExprPair*]: ('was' | 'is') a=bitwise_or { _PyPegen_cmpop_expr_pair(p, Is, a) }
 
 # Bitwise operators
 # -----------------
